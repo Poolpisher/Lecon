@@ -1,24 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Control : MonoBehaviour
 {
     //Vitesse/vitesse max du joueur
-    [SerializeField] private int Speed;
-    [SerializeField] private int MaxSpeed;
+    [SerializeField] private int speed;
+    [SerializeField] private int maxSpeed;
     //Projectile
-    [SerializeField] public GameObject Bullet;
-    //Position du joueur
-    public Vector2 PlayerPosition;
+    [SerializeField] private GameObject bulletPrefab;
     //Orientation du joueur
-    public Vector2 inputValue;
-    //Orientation du tir
-    public Vector2 ShootinputValue;
+    private Vector2 inputValue;
 
-    public Player playerInput;
-    private new Rigidbody rigidbody;
+    private Player playerInput;
+    private Rigidbody rigidbody;
 
     //Activation des controles
     private void OnEnable()
@@ -33,10 +27,13 @@ public class Control : MonoBehaviour
     //tir
     void Shoot(InputAction.CallbackContext obj)
     {
-        ShootinputValue = obj.ReadValue<Vector2>();
+        //Orientation du tir
+        var shootinputValue = obj.ReadValue<Vector2>();
         //Créer le projectile
-        Instantiate(Bullet, PlayerPosition, Quaternion.identity);
+        var createBullet = Instantiate(bulletPrefab, rigidbody.position, Quaternion.identity);
+        createBullet.GetComponent<Bullet>().FixinputValue = shootinputValue;
     }
+
     //Déplacement
     private void Move(InputAction.CallbackContext obj)
     {
@@ -58,12 +55,10 @@ public class Control : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        //Garde la position du joueur dans une variable
-        PlayerPosition = rigidbody.position;
         //Tant que le déplacement est inférieur à maxspeed, augmente la vitesse du joueur
-        if (rigidbody.velocity.sqrMagnitude < MaxSpeed)
+        if (rigidbody.velocity.sqrMagnitude < maxSpeed)
         {
-            rigidbody.AddForce(inputValue * Speed);
+            rigidbody.AddForce(inputValue * speed);
         }
     }
 }
